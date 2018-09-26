@@ -34,6 +34,8 @@ func main() {
 	}
 	fmt.Printf("Number of keys: %v\n", len(results))
 	var totalBytes int
+	var maxBytes int
+	var maxKey string
 	regex, _ := regexp.Compile(`serializedlength:(\d*)`)
 	for _, key := range results {
 		val, err := client.DebugObject(key).Result()
@@ -45,7 +47,14 @@ func main() {
 		var bytes int
 		bytes, _ = strconv.Atoi(matches[1])
 		totalBytes += bytes
+		if bytes > maxBytes {
+			maxBytes = bytes
+			maxKey = key
+		}
 	}
-	avgBytes := totalBytes / len(results)
-	fmt.Printf("Average serialized size: %d", avgBytes)
+	if len(results) > 0 {
+		avgBytes := totalBytes / len(results)
+		fmt.Printf("Average serialized size: %d\n", avgBytes)
+	}
+	fmt.Printf("Max key \"%s\" serialized size: %d\n", maxKey, maxBytes)
 }
